@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+	[v-cloak]{display: none;}
+</style>
+</head>
+<body>
+<div class="body" id="app" v-cloak>
+	<div class="layui-form">
+		<div class="layui-inline">
+			<label class="layui-form-label">药品名称</label>
+			<div class="layui-inline">
+				<input type="text" name="name" v-model="name" lay-verify="required" placeholder="请输入药品名称" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">单选框</label>
+			<div class="layui-input-block">
+			<input type="radio" name="type" value="中药" title="中药" checked="">
+			<input type="radio" name="type" value="西药" title="西药">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="submit">查询</button>
+			</div>
+        </div>
+	</div>
+	<div class="layui-form">
+		<table class="layui-table">	
+			<tr>
+				<th>选择</th>
+				<th>药品编号</th>
+				<th>药品名称</th>
+				<th>规格</th>
+				<th>单价</th>
+				<th>剂型</th>
+				<th>单位</th>
+				<th>用法</th>
+				<th>频次</th>
+				<th>数量</th>
+			</tr>
+			<tr v-for="(v,index) in drugInfo"><!--写成 v of list 效果是一样的-->
+				<th><input type="radio" name="select" :value="index"></th>
+				<th name = "drugCode">{{v.drugCode}}</th>
+				<th>{{v.drugName}}</th>
+				<th>{{v.specification}}</th>
+				<th>{{v.unitPrice}}</th>
+				<th>{{v.doseType}}</th>
+				<th>{{v.unit}}</th>
+				<th ><input type="text" v-model="v.direction"  style="width:50px;"> </th>
+				<th><input type="text" v-model="v.frequence"  style="width:50px;"></th>
+				<th><input type="text"v-model="v.total"  style="width:50px;"> </th>
+            </tr>
+		</table>
+		<div class="layui-form">
+			<div class="layui-inline">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit lay-filter="add">添加</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		name:'',
+		type:'',
+		drugInfo:{},
+		prescription:{},
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+		read: function() {
+			app.registerinfo["patientInfo"] = app.patientInfoList[0];
+			//app.registerinfo.patientId = app.registerinfo["patientInfo"].patientId;
+		}
+	},
+	updated: function(){
+		layui.form.render();
+	},
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+	var flag = false;
+	url = window.location.search; 
+    var registCode = url.substr(1);
+	$.ajax({
+		type: "GET",
+		url: "http://localhost:8080/ssm/diagnosis/findByRegistCode",
+		data: {registCode:registCode},
+		dataType: "json",
+		success: function(res){
+			app.diagnosisInfo = res;
+		}
+	});
+
+	$.ajax({
+		type: "GET",
+		url: "http://localhost:8080/ssm/department/list",
+		data: app.registerinfo,
+		dataType: "json",
+		success: function(res){
+			app.hcaredepartmentList = res;
+			if(layui.data("temp").registerinfo) {
+				app.registerinfo = layui.data("temp").registerinfo;
+				layui.data("temp",null);
+			}
+		}
+	});
+
+		
+	form.on('submit(submit)', function(data){
+		app.type = data.field.type;
+		$.ajax({
+			type: "GET",
+			url: "http://localhost:8080/ssm/doctor/findById",
+			data: {doctorId:app.diagnosisInfo.doctorId},
+			dataType: "json",
+			success: function(res){
+				app.doctor = res;
+			}
+		});
+		$.ajax({
+			type: "GET",
+			url: "http://localhost:8080/ssm/drugInfo/findByName",
+			data: {name:data.field.name},
+			dataType: "json",
+			success: function(res){
+				app.drugInfo = res;
+			},
+		});
+			
+  	});
+
+	  form.on('submit(add)',function(data){
+		app.prescription = app.drugInfo[$("input[name='select']:checked").val()];
+		app.prescription.doctorName = app.doctor.doctorName;
+		app.prescription.registCode = app.diagnosisInfo.registCode;
+		app.prescription.diagnosisCode = app.diagnosisInfo.diagnosisCode;
+		var addType ;
+		if(app.type=="西药")addType="addWm";
+		else addType="addCh";
+		console.log(app.prescription);
+		$.ajax({
+			type: "POST",
+			url: "http://localhost:8080/ssm/prescript/"+addType,
+			data: app.prescription,
+			dataType: "json",
+			success: function(res){
+				layer.msg("添加成功",{icon:1,time:1500});
+				app.prescription = {};
+
+			},
+			error:function(res){
+				layer.msg("添加失败",{icon:2,time:1500});
+			}
+	  	});
+	  });
+});
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../../css/admin.css">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="flex-row flex-space-between">
+		<form class="layui-form">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">选择框</label>
+					<div class="layui-input-block">
+						<select name="city">
+							<option value=""></option>
+							<option value="北京">北京</option>
+							<option value="上海">上海</option>
+							<option value="广州">广州</option>
+							<option value="深圳">深圳</option>
+							<option value="杭州">杭州</option>
+						</select>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">输入框</label>
+					<div class="layui-input-block">
+						<input type="text" name="title" placeholder="请输入标题" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="search">查找</button>
+				</div>
+				<div class="layui-inline">
+					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+				</div>
+			</div>
+		</form>
+		<div style="margin-bottom:20px"><button class="layui-btn layui-btn-green" v-on:click="add()">新增</button></div>
+	</div>
+	<div>
+		<table id="table" lay-filter="table"></table>
+	    <script type="text/html" id="toolbar">
+			<button class="layui-btn layui-btn-sm" lay-event="edit">编辑</button>
+    	</script>
+    </div>
+    <div class="miui-page" id="page"></div>
+</div>
+<script type="text/javascript" src="../../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		
+	},
+	methods: {
+		add: function(){
+			var index = layer.open({
+    			type:2,
+    			title: "新增病人",
+    			content: 'edit.html',
+    			area:["700px","550px"],
+    			end:function(){
+    				window.location.reload();
+    			}
+    		});
+		}
+	}
+});
+</script>
+<script>
+layui.config({
+	base: '../../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','table','form'], function(){
+	let table = layui.table;
+	let form = layui.form;
+	
+	form.on('submit(search)', function(data){
+      	var field = data.field;
+      	console.log(field);
+      	//执行重载
+      	table.reload('table', {
+        	where: field,
+        	page: {curr: 1}
+      	});
+    });
+	
+	table.render({
+		elem: '#table'
+		,url: 'http://localhost:8080/ssm/department/list'
+		,page: true
+		,cols: [[ //表头
+			{field:'deptId',title:'科室编号',align:'center',minWidth:100},
+			{field:'deptName',title:'科室名称',align:'center',width:120},
+			{field:'deptIntroduct',title:'科室介绍',align:'center',minWidth:100},
+            {field:'diagnosticRange',title:'就诊范围',align:'center',minWidth:100},
+            {field:'deptLeader',title:'科室主任',align:'center',minWidth:100},
+            {field:'telephone',title:'联系电话',align:'center',minWidth:100},
+			{title: "操作", width: 150, align: "center", fixed: "right", toolbar: "#toolbar"}
+		]]
+	});
+	table.on("tool(table)", function(e) {
+        if ("edit" === e.event) {
+        	layui.data("temp",{key:"deptInfo",value:e.data});
+        	var index = layer.open({
+    			type:2,
+    			title: "编辑",
+    			content: 'edit.html',
+    			area:["700px","550px"],
+    			end:function(){
+    				window.location.reload();
+    			}
+    		});
+        }
+    });
+});
+</script>
+</body>
+</html>

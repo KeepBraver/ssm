@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.layui-input {
+	width: 150px;
+}
+</style>
+</head>
+<body>
+	<div class="body" id="app">
+		<div class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">主诉</label>
+				<textarea style="width: 456px; height: 156px;" name="mainsuitInfo"
+					v-model="diagnosisInfo.mainsuitInfo" lay-verify="required"
+					class="layui-input"></textarea>
+			</div>
+			<div class="layui-form-item">
+
+				<div class="layui-inline">
+					<label class="layui-form-label">现病史</label>
+					<div class="layui-input-block">
+						<input type="text" name="presentIllness"
+							v-model="diagnosisInfo.presentIllness" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">既往史</label>
+					<div class="layui-input-block">
+						<input type="text" name="passIllness"
+							v-model="diagnosisInfo.passIllness" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">过敏史</label>
+					<div class="layui-input-block">
+						<input type="text" name="allergyIllness"
+							v-model="diagnosisInfo.allergyIllness" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">收缩压</label>
+					<div class="layui-input-block">
+						<input type="text" name="systolic"
+							v-model="diagnosisInfo.systolic" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">舒张压</label>
+					<div class="layui-input-block">
+						<input type="text" name="diastolic"
+							v-model="diagnosisInfo.diastolic" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">血糖</label>
+					<div class="layui-input-block">
+						<input type="text" name="bloodSugar"
+							v-model="diagnosisInfo.bloodSugar" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">脉搏</label>
+					<div class="layui-input-block">
+						<input type="text" name="pulse" v-model="diagnosisInfo.pulse"
+							class="layui-input" disabled="disabled">
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">症状</label>
+					<div class="layui-input-block">
+						<input type="text" name="symptom" v-model="diagnosisInfo.symptom"
+							class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">诊断信息</label>
+					<div class="layui-input-block">
+						<input type="text" name="diagnosticInfo"
+							v-model="diagnosisInfo.diagnosticInfo" class="layui-input"
+							disabled="disabled">
+					</div>
+				</div>
+			</div>
+
+
+
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+        diagnosisInfo:{},
+    },
+});
+</script>
+<script type="text/javascript">
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+    url = window.location.search; 
+    var registCode = url.substr(1);
+    $.ajax({
+        type: "get",
+        url: "http://localhost:8080/ssm/diagnosis/findByRegistCode",
+        data: {registCode:registCode},
+        dataType: "json",
+        success: function(res){
+            app.diagnosisInfo = res;
+        },    
+    });
+    
+});
+</script>
+</html>

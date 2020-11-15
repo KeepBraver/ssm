@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="layui-form">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">姓名</label>
+				<div class="layui-input-block">
+					<input type="text" name="name" v-model="registerInfo.patientInfo.name" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">年龄</label>
+				<div class="layui-input-block">
+					<input type="text" name="age" v-model="registerInfo.patientInfo.age" class="layui-input" >
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">性别</label>
+				<div class="layui-input-block">
+					<input type="text" name="sex" v-model="registerInfo.patientInfo.sex"  class="layui-input" disabled="disabled">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">身份证号</label>
+				<div class="layui-input-block">
+					<input type="text" name="idNumber" v-model="registerInfo.patientInfo.idNumber"  class="layui-input" disabled="disabled">
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">主观资料</div>
+		<hr>
+		<div class="layui-form-item">
+			<label class="layui-form-label">主诉</label>
+			<textarea style="width: 456px;height: 156px;" rows="5" cols="5" name="mainsuitInfo" v-model="diagnosisinfo.mainsuitInfo" lay-verify="required"  class="layui-input" ></textarea>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">现病史</label>
+				<div class="layui-input-block"><textarea rows="2" cols="20" name="presentIllness" v-model="diagnosisinfo.presentIllness" lay-verify="required" class="layui-textarea" ></textarea></div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">既往史</label>
+				<div class="layui-input-block"><textarea rows="2" cols="20" name="passIllness" v-model="diagnosisinfo.passIllness" lay-verify="required" class="layui-textarea" ></textarea></div>
+			</div>
+				<div class="layui-inline">
+				<label class="layui-form-label">过敏史</label>
+				<div class="layui-input-block"><textarea rows="2" cols="20" name="allergyIllness" v-model="diagnosisinfo.allergyIllness" lay-verify="required" class="layui-textarea" ></textarea></div>
+			</div>
+		</div>
+		<div class="layui-form-item">客观资料</div>
+		<hr>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">收缩压</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 100px;" name="systolic" v-model="diagnosisinfo.systolic" lay-verify="required" class="layui-input" >
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">舒张压</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 100px;" name="diastolic" v-model="diagnosisinfo.diastolic" lay-verify="required" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">血糖</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 100px;" width="100px;" name="bloodSugar" v-model="diagnosisinfo.bloodSugar" lay-verify="required" class="layui-input" >
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">脉搏</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 100px;" name="pulse" v-model="diagnosisinfo.pulse" lay-verify="required" class="layui-input">
+				</div>
+			</div>
+			
+			<div class="layui-inline">
+				<label class="layui-form-label">体重</label>
+				<div class="layui-input-block">
+					<input type="text"  style="width: 100px;" name="weight" v-model="diagnosisinfo.weight" lay-verify="required" class="layui-input">
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">其他</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 400px;" name="otherInfo" v-model="diagnosisinfo.otherInfo" lay-verify="required" class="layui-input" >
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">症状</label>
+				<div class="layui-input-block">
+					<input type="text" style="width: 400px;" name="symptom" v-model="diagnosisinfo.symptom" lay-verify="required" class="layui-input" >
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">诊断信息</label>
+			<textarea style="width: 456px;height: 156px;" rows="5" cols="5" name="diagnosticInfo" v-model="diagnosisinfo.diagnosticInfo" lay-verify="required"  class="layui-input" ></textarea>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn layui-btn-primary" v-on:click="closeWin()">取消</button>
+				<button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+			</div>
+        </div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		registerInfo:{patientInfo:{}},
+		diagnosisinfo:{
+			
+		}	
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+	},
+	updated: function(){
+		layui.form.render();
+	}
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	
+	let form = layui.form;
+	var flag = false;
+	app.registerInfo = layui.data("temp").registerInfo;
+	$.ajax({
+		type: "GET",
+		url: "http://localhost:8080/ssm/doctor/findByDeptAndName",
+		data: {
+			deptName:app.registerInfo.deptName,
+			doctorName:app.registerInfo.doctorName,
+		},
+		dataType: "json",
+		success: function(res){
+			app.diagnosisinfo.doctorId = res;	
+		}
+	}); 
+
+	form.on('submit(submit)', function(data){
+		app.diagnosisinfo.registCode = app.registerInfo.registCode;
+		app.diagnosisinfo.caseNum = app.registerInfo.caseNum;
+		$.ajax({
+			type: "POST",
+			url: "http://localhost:8080/ssm/diagnosis/update",
+			data: app.diagnosisinfo,
+			dataType: "json",
+			success: function(res){
+				layer.msg("保存成功",{icon:1,time:1500});
+			},
+			error:function(res){
+				layer.msg("保存成功",{icon:2,time:1500});
+			},
+		});
+			
+  	});
+});
+</script>
+</body>
+</html>

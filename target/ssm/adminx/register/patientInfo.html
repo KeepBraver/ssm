@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+    .layui-input{
+        width: 150px;
+    }
+    
+    </style>
+</head>
+<body>
+    <div class="body" id="app">
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" v-model="patientInfo.name" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">身份证号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="idNumber" v-model="patientInfo.idNumber" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="sex" v-model="patientInfo.sex" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">年龄</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="age" v-model="patientInfo.age" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">出生日期</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="birthday" v-model="patientInfo.birthday" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" v-model="patientInfo.phone" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">病历单</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="caseNum" v-model="patientInfo.caseNum" class="layui-input" disabled="disabled" >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+        patientInfo:{},
+    },
+});
+</script>
+<script type="text/javascript">
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+    url = window.location.search; 
+    var idNumber = url.substr(1);
+    $.ajax({
+        type: "get",
+        url: "http://localhost:8080/ssm/patient/findByIdNumber",
+        data: {idNumber:idNumber},
+        dataType: "json",
+        success: function(res){
+            app.patientInfo = res.data;
+        },
+    });
+    
+});
+</script>
+</html>

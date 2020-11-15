@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="layui-form">
+		<table class="layui-table">	
+			<tr>
+				<th>药品编号</th>
+				<th>药品名称</th>
+				<th>入库数量</th>
+				<th>单价</th>
+				<th>药品类型</th>
+				
+			</tr>
+			<tr v-for="(v,index) in drugEntryOrder" v-if="drugEntryOrder!='' " >
+                <th>{{v.drugCode}}</th>
+				<th>{{v.drugInfo.drugName}}</th>				
+				<th>{{v.entryNum}}</th>
+				<th>{{v.drugInfo.unitPrice}}</th>		
+				<th>{{v.drugInfo.drugType}}</th>					
+            </tr>
+		</table>
+	</div>
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		entry:{},
+		drugEntryOrder:'',
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+	},
+	updated: function(){
+		layui.form.render();
+	},
+	
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+    app.entry = layui.data("temp").entry;
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        $(this).removeAttr("lay-key");
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#test1' //指定元素
+            ,trigger : 'click'
+        });
+    });
+
+	
+	$.ajax({
+		type: "GET",
+		url: "http://localhost:8080/ssm/entryOrder/listById",
+		data: {entryLibraryId:app.entry.id},
+		dataType: "json",
+		success: function(res){
+			app.drugEntryOrder = res.data;
+			console.log(app.drugEntryOrder);
+		},
+	}); 
+
+});
+</script>
+</body>
+</html>

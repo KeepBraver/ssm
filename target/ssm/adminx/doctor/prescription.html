@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+	[v-cloak]{display: none;}
+</style>
+</head>
+<body>
+<div class="body" id="app" v-cloak>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">姓名</label>
+			<div class="layui-input-block">
+				<input type="text"  name="patientName" v-model="registerinfo.patientName" lay-verify="required" class="layui-input" disabled="disabled">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">年龄</label>
+			<div class="layui-input-block">
+				<input type="text"  name="patientName" v-model="registerinfo.patientInfo.age" lay-verify="required" class="layui-input" disabled="disabled">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">身份证号</label>
+			<div class="layui-input-block">
+				<input type="text"  name="patientName" v-model="registerinfo.patientInfo.idNumber" lay-verify="required" class="layui-input" disabled="disabled">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">科室</label>
+			<div class="layui-input-block">
+				<input type="text"  name="patientName" v-model="registerinfo.deptName" lay-verify="required" class="layui-input" disabled="disabled">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">医生</label>
+			<div class="layui-input-block">
+				<input type="text"  name="patientName" v-model="registerinfo.doctorName" lay-verify="required" class="layui-input" disabled="disabled">
+			</div>
+		</div>
+		<button class="layui-btn" lay-submit lay-filter="watch">诊断信息</button>
+		<button class="layui-btn" lay-submit lay-filter="choice">选择药品</button>
+		<button class="layui-btn" lay-submit lay-filter="submit">诊断完成</button>
+	</div>
+	
+	</div>
+	<div>
+		<table id="table" lay-filter="table"></table>
+	    <script type="text/html" id="toolbar">
+			<button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del">移除</button>
+    	</script>
+	</div sty>
+	
+    <div class="miui-page" id="page"></div>
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		registerinfo:{
+			patientInfo:{},
+		},
+	},
+	methods: {
+		add: function(){
+			var index = layer.open({
+    			type:2,
+    			title: "病人信息",
+    			content: 'wmprescriptionEdit.html',
+    			area:["1000px","500px"],
+    			//btn:["确认","取消"],
+    			end:function(){
+					if(layui.data("temp").registerinfo) {
+    					layui.table.reload("table");
+					}
+    			}
+    		});
+        	//layer.full(index);
+		}
+	}
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','table','form'], function(){
+	let table = layui.table;
+	let form = layui.form;
+	var x = document.cookie;
+	var doctorName = x.split(";")[0].split("=")[1]; 
+	var deptName = x.split("=")[2];  
+	$.ajax({
+		url:'http://localhost:8080/ssm/doctor/findByDeptAndName',
+		type:'GET',
+		data:{
+			doctorName:doctorName,
+			deptName:deptName,
+		},
+		dataType: "json",
+		success: function(res){
+			app.patientId = res;
+		},
+		
+	});
+	$.ajax({
+		url:'http://localhost:8080/ssm/register/consultation',
+		type:'GET',
+		data:{
+			doctorName:doctorName,
+			deptName:deptName,
+		},
+		dataType: "json",
+		success: function(res){
+			app.registerinfo = res;
+			table.render({
+				elem: '#table'
+				,url: 'http://localhost:8080/ssm/prescript/findAllByRegistCode?registCode='+app.registerinfo.registCode
+				,cols: [[ //表头
+					{field:'diagnosisCode',title:'药品编号',align:'center',width:130},
+					{field:'drugName',title:'药品名称',align:'center',width:120},
+					{field:'specification',title:'药品规格',align:'center',width:110},
+					{field:'direction',title:'使用方式',align:'center',width:110},
+					{field:'doseType',title:'剂型',align:'center',width:100},
+					{field:'frequence',title:'使用频次',align:'center',width:110},
+					{field:'unitPrice',title:'单价',align:'center',width:90},
+					{field:'total',title:'总量',align:'center',width:90},
+					{field:'account',title:'总价',align:'center',width:100},
+					{title: "操作", width: 150, align: "center", fixed: "right", toolbar: "#toolbar"}
+				]] 
+			});
+		},
+	})
+	
+	form.on('submit(watch)', function(data){
+		var index = layer.open({
+			type:2,
+			title: "编辑",
+			content: 'diagnosisInfomation.html?'+app.registerinfo.registCode,
+			area:["700px","400px"],
+    	});
+    });
+	form.on('submit(choice)', function(data){
+      	var field = data.field;
+      	var index = layer.open({
+    			type:2,
+    			title: "编辑",
+    			content: 'prescriptionEdit.html?'+app.registerinfo.registCode,
+    			area:["1000px","300px"],
+    			end:function(){
+    				if(layui.data("temp").registerinfo) {
+    					e.update(layui.data("temp").registerinfo);
+    					layui.data("temp",null);
+    				}
+    			}
+    		});
+      	
+    });
+
+	form.on('submit(submit)', function(data){;
+      	var index = layer.open({
+    			type:1,
+    			title: "确认操作",
+    			content: '<h3 style="text-align:center;line-height:100px;"><strong>确认您已开取处方以及诊断项目</strong></h3>',
+    			area:["350px","200px"],
+    			btn:["确认","取消"],   			
+    		});
+		$.ajax({
+			url:'http://localhost:8080/ssm/register/changeStatus',
+			type:'POST',
+			data:{
+				registCode:app.registerinfo.registCode,
+				status:'就诊完',
+			},
+			dataType: "json",
+			success: function(res){
+			},
+		});    	
+    });
+
+	table.on("tool(table)", function(e) {
+        if ("del" === e.event) {
+        	layer.confirm("确定要删除吗？",function(index){
+			var id = e.data['id'];
+			$.ajax({
+				type: "POST",
+				url: "http://localhost:8080/ssm/prescript/delete",
+				data: {id:id},
+				dataType: "json",
+				success: function(res){
+					layer.msg("删除成功",{icon:1,time:1500});
+				},
+				error:function(res){
+					layer.msg("删除失败",{icon:2,time:1500});
+				}
+			});
+        		e.del();
+        		layer.close(index);
+        	})
+        }
+    });
+});
+</script>
+</body>
+</html>

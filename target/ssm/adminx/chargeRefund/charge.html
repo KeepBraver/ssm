@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+[v-cloak] {
+	display: none;
+}
+</style>
+</head>
+<body>
+	<div class="body" id="app" v-cloak>
+		<div class="flex-row flex-space-between">
+			<form class="layui-form">
+				<div class="layui-form-item">
+
+					<div class="layui-inline">
+						<label class="layui-form-label">挂单号</label>
+						<div class="layui-input-block">
+							<input type="text" name="registCode" v-model="registCode"
+								placeholder="请输入挂单号" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<button type="button" class="layui-btn layui-btn-normal"
+							lay-submit lay-filter="search">查找</button>
+					</div>
+					<div class="layui-inline">
+						<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+					</div>
+					<button type="button" class="layui-btn  layui-btn-green" lay-submit
+						lay-filter="charge">确认收费</button>
+
+				</div>
+			</form>
+		</div>
+		<div class="layui-table"></div>
+		<div class="layui-table">
+			<table class="layui-table" v-if="registInfo!=''">
+				<tr>
+					<th colspan="6" style="text-align: center;">患者信息</th>
+				</tr>
+				<tr>
+					<th>姓名</th>
+					<th>身份证号</th>
+					<th>病历号</th>
+					<th>联系电话</th>
+					<th>就诊科室</th>
+				</tr>
+				<tr>
+					<th>{{registInfo.patientInfo.name}}</th>
+					<th>{{registInfo.patientInfo.idNumber}}</th>
+					<th>{{registInfo.patientInfo.caseNum}}</th>
+					<th>{{registInfo.patientInfo.phone}}</th>
+					<th>{{registInfo.deptName}}</th>
+				</tr>
+			</table>
+			<table class="layui-table" v-if="wm!=''">
+				<tr>
+					<th colspan="6" style="text-align: center;">西药收费</th>
+				</tr>
+				<tr>
+					<th></th>
+					<th>药品名称</th>
+					<th>规格</th>
+					<th>单价</th>
+					<th>数量</th>
+					<th>总价</th>
+				</tr>
+				<tr v-for="(w,index) in wm">
+					<th><input type="checkbox" name="selected1" :value=index></th>
+					<th>{{w.drugName}}</th>
+					<th>{{w.specification}}</th>
+					<th>{{w.unitPrice}}</th>
+					<th>{{w.total}}</th>
+					<th>{{w.account}}</th>
+				</tr>
+			</table>
+		</div>
+		<div class="layui-table">
+			<table class="layui-table" v-if="ch!=''">
+				<tr>
+					<th colspan="6" style="text-align: center;">中药收费</th>
+				</tr>
+				<tr>
+					<th></th>
+					<th>药品名称</th>
+					<th>规格</th>
+					<th>单价</th>
+					<th>数量</th>
+					<th>总价</th>
+				</tr>
+				<tr v-for="(c,index) in ch">
+					<th><input type="checkbox" name="selected2" :value=index></th>
+					<th>{{c.drugName}}</th>
+					<th>{{c.specification}}</th>
+					<th>{{c.unitPrice}}</th>
+					<th>{{c.total}}</th>
+					<th>{{c.account}}</th>
+				</tr>
+			</table>
+		</div>
+		<div class="layui-table">
+			<table class="layui-table" v-if="ins!=''">
+				<tr>
+					<th colspan="6" style="text-align: center;">诊断项目收费</th>
+				</tr>
+				<tr>
+					<th></th>
+					<th>诊断项目</th>
+					<th>就诊科室</th>
+					<th>单价</th>
+					<th>次数</th>
+					<th>总价</th>
+				</tr>
+				<tr v-for="(i,index) in ins">
+					<th><input type="checkbox" name="selected3" :value=index></th>
+					<th>{{i.item}}</th>
+					<th>{{i.deptName}}</th>
+					<th>{{i.unitPrice}}</th>
+					<th>{{i.total}}</th>
+					<th>{{i.account}}</th>
+				</tr>
+			</table>
+		</div>
+	</div>
+	</div>
+	<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/vue.js"></script>
+	<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+        registCode:'',
+        wm:'',
+        ch:'',
+        ins:'',
+        registInfo:'',
+	},
+	methods: {
+		add: function(){
+			var index = layer.open({
+    			type:2,
+    			title: "病人信息",
+    			content: 'registerinfoEdit.html',
+    			area:["800px","500px"],
+    			//btn:["确认","取消"],
+    		});
+        	//layer.full(index);
+		},
+
+	}
+});
+</script>
+	<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','table','form'], function(){
+
+    let table = layui.table;
+	let form = layui.form;
+    form.on('submit(search)',function(data){
+       
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/ssm/register/findByRegistCode",
+            data: {registCode:app.registCode},
+            dataType: "json",
+            success: function(res){
+               if(res.message=='无数据'){
+                    app.wm = '';
+                    app.ch = '';
+                    app.ins = '';
+                    app.registInfo = '';
+                    app.registCode = '';
+                   alert("没有该单号");
+               }else{
+                app.registInfo = res.data;
+                $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/ssm/flowSheet/charge",
+                        data: {registCode:app.registCode},
+                        dataType: "json",
+                        success: function(res){
+                        app.wm = res[0];
+                        app.ch = res[1];
+                        app.ins = res[2];
+                        }
+                    });
+               }
+            }
+        });
+        
+    });
+
+    form.on('submit(charge)',function(data){
+        var j=0;
+        var a1 = $("input[name='selected1']:checked");
+        var a2 = $("input[name='selected2']:checked");
+        var a3 = $("input[name='selected3']:checked");
+        var flowSheet = new Array();
+        for(var i=0;i<a1.length+a2.length+a3.length;i++){
+            flowSheet[i] = new Object();
+            flowSheet[i]['chargeTypeId'] = '';
+            flowSheet[i]['registCode'] = '';
+            flowSheet[i]['account'] = '';
+            flowSheet[i]['chargeTypeId'] = '';
+            flowSheet[i]['caseNum'] = app.registInfo.patientInfo.caseNum;
+            flowSheet[i]['operator'] = '';
+            
+        }
+        for(var i=0;i<a1.length;i++){
+            var w = app.wm[a1[i].value];
+            flowSheet[j]['chargeTypeId'] = w.id;
+            flowSheet[j]['account'] = w.account;
+            flowSheet[j]['chType'] = "西药费用";
+            flowSheet[j]['registCode'] = app.registCode;
+            j++;
+
+        }
+        for(var i=0;i<a2.length;i++){
+            var c = app.ch[a2[i].value];
+            flowSheet[j]['chargeTypeId'] = c.id;
+            flowSheet[j]['account'] = c.account;
+            flowSheet[j]['chType'] = "中药费用";
+            flowSheet[j]['registCode'] = app.registCode;
+            j++
+        }
+        for(var i=0;i<a3.length;i++){
+            var i = app.ins[a3[i].value];
+            flowSheet[j]['chargeTypeId'] = i.id;
+            flowSheet[j]['account'] = i.account;
+            flowSheet[j]['chType'] = "诊断费用";
+            flowSheet[j]['registCode'] = app.registCode;
+            j++
+        }
+        var account=0;
+        for(var i=0;i<flowSheet.length;i++){
+        	account+=flowSheet[i].account;
+        }
+        console.log(account);
+        layui.data("temp",{key:"flowSheet",value:flowSheet});
+        var index = layer.open({
+			type:2	,
+			title: "收费信息",
+			content: 'chargeFlowSheet.html?'+account,
+			area:["800px","300px"],
+			end:function(){
+			 for(var i=0;i<flowSheet.length;i++){
+				flowSheet[i]['operator'] = layui.data("temp").operator;
+		        $.ajax({
+		            type: "POST",
+		            url: "http://localhost:8080/ssm/flowSheet/addFlowSheet",
+		            data: flowSheet[i],
+		            dataType: "json",
+		            success:function(){
+				            },
+		        });
+			 }
+			 layer.msg("收费成功",{icon:1,time:1500},function(){
+                 window.location.reload();
+             });
+			}
+		});
+          
+    });
+});
+</script>
+</body>
+</html>

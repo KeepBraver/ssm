@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="layui-form">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">发票单</label>
+				<div class="layui-inline">
+					<input type="text" name="invoiceCode" v-model="entryLibrary.invoiceCode" lay-verify="required" placeholder="请输入发票单" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">供货单位</label>
+				<div class="layui-inline">
+					<input type="text" name="supplyCompany" v-model="entryLibrary.supplyCompany" lay-verify="required" placeholder="请输入供货单位" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">发票日期</label>
+				<div class="layui-inline">
+					<input type="text"  name="invoiceDate" v-model="entryLibrary.invoiceDate" id="test1" placeholder="发票日期" lay-verify="required" class="layui-input">
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-form">
+				<div class="layui-inline">
+					<label class="layui-form-label">入库日期</label>
+					<div class="layui-inline">
+						<input type="text" name="entryDate" v-model="entryLibrary.entryDate" id="test2" placeholder="入库日期" lay-verify="required" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">操作员</label>
+					<div class="layui-inline">
+						<input type="text" name="operator" v-model="entryLibrary.operator" lay-verify="required" placeholder="请输入操作员" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn" lay-submit lay-filter="add">初始入库</button>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn" lay-submit lay-filter="addDrug">添加药品</button>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn" lay-submit lay-filter="finish">完成入库</button>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<div>
+		<table id="table" lay-filter="table"></table>
+	    <script type="text/html" id="toolbar">
+			<button class="layui-btn layui-btn-sm" lay-event="del">删除</button>
+    	</script>
+    </div>
+    <div class="miui-page" id="page"></div>
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		entryLibrary:{},
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+		read: function() {
+			//app.registerinfo["patientInfo"] = app.patientInfoList[0];
+			//app.registerinfo.patientId = app.registerinfo["patientInfo"].patientId;
+		}
+	},
+	updated: function(){
+		layui.form.render();
+	},
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form','table'], function(){
+	let table = layui.table;
+	let form = layui.form;
+	layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        $(this).removeAttr("lay-key");
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#test1' //指定元素
+            ,trigger : 'click'
+        });
+		laydate.render({
+            elem: '#test2' //指定元素
+            ,trigger : 'click'
+        });
+    });
+	
+	
+	 $.ajax({
+			type: "GET",
+			url: "http://localhost:8080/ssm/entry/findMax",
+			data: '',
+			dataType: "json",
+			success: function(res){
+				if(res.message=="无数据"){
+				}
+				else {
+					app.entryLibrary = res.data;
+					table.render({
+						elem: '#table'
+						,url: 'http://localhost:8080/ssm/entryOrder/listById?entryLibraryId='+res.data.id
+						,page: true
+						,cols: [[ //表头
+							{field:'drugCode',title:'药品编号',align:'center',minWidth:100},
+							{field:'entryNum',title:'入库数量',align:'center',minWidth:120},
+							{field:'drugName',title:'药品名称',align:'center',minWidth:120,templet: '<div>{{d.drugInfo.drugName}}</div>'},
+							{field:'unitPrice',title:'单价',align:'center',minWidth:120,templet: '<div>{{d.drugInfo.unitPrice}}</div>'},
+							{field:'drugType',title:'药品类型',align:'center',minWidth:120,templet: '<div>{{d.drugInfo.drugType}}</div>'},
+							{title: "操作", width: 150, align: "center", fixed: "right", toolbar: "#toolbar"}
+						]]
+					});
+				}
+			},
+			
+		}); 
+	 
+	 form.on('submit(add)',function(data){
+		 app.entryLibrary.invoiceDate = $("input[name='invoiceDate']").val();
+		 app.entryLibrary.entryDate = $("input[name='entryDate']").val();
+		 $.ajax({
+		 	type: "POST",
+			url: "http://localhost:8080/ssm/entry/insert",
+			data: app.entryLibrary,
+			dataType: "json",
+			success: function(res){
+				layer.msg("入库成功",{icon:1,time:1500},function(){
+					window.location.reload();
+				});
+			}
+	 	});
+	 });
+	 form.on('submit(finish)',function(data){
+		 $.ajax({
+		 	type: "POST",
+			url: "http://localhost:8080/ssm/entry/updateStatus",
+			data: {id:app.entryLibrary.id},
+			dataType: "json",
+			success: function(res){
+				layer.msg("入库完成",{icon:1,time:1500},function(){
+					window.location.reload();
+				});
+			}
+	 	});
+	 });
+	 
+	 form.on('submit(addDrug)',function(data){
+		 var index = layer.open({
+	   			type:2,
+	   			title: "添加",
+	   			content: 'drugAdd.html?'+app.entryLibrary.id,
+	   			area:["800px","550px"],
+	   			//btn:["确认","取消"],
+	   			
+	   		});
+	 });
+	 table.on("tool(table)", function(e) {
+		 if ("del" === e.event) {
+	     	layer.confirm("确定要删除吗？",function(index){
+				var id = e.data['id'];
+				$.ajax({
+					type: "POST",
+					url: "http://localhost:8080/ssm/entryOrder/delete",
+					data: {id:id},
+					dataType: "json",
+					success: function(res){
+						layer.msg("删除成功",{icon:1,time:1500},function(){
+							layui.data("temp",{key:"registerinfo",value:app.registerinfo});
+							//app.closeWin();
+						});
+					},
+					error:function(res){
+						layer.msg("删除失败",{icon:2,time:1500}),function(){
+							layui.data("temp",{key:"registerinfo",value:app.registerinfo});
+							//app.closeWin();
+						}
+					}
+				});
+	      		e.del();
+	      		layer.close(index);
+		    });
+		}
+	 });
+});
+</script>
+</body>
+</html>
+
+

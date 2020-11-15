@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../css/admin.css">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">药品名称</label>
+			<div class="layui-inline">
+				<input type="text" name="drugName" lay-verify="required" placeholder="请输入药品名称" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">失效日期</label>
+			<div class="layui-input-block">
+				<input type="text" name="validityDate" id="test1" lay-verify="required" placeholder="请输入失效日期" class="layui-input">
+			</div>
+		</div>
+		 <div class="layui-form-item">
+			<label class="layui-form-label">药品批号</label>
+			<div class="layui-inline">
+				<input type="text" name="BatchNum"  placeholder="请输入药品批号" lay-verify="required" class="layui-input">
+			</div>
+        </div>
+       
+    	<div class="layui-form-item">
+			<label class="layui-form-label">单位</label>
+			<div class="layui-input-block">
+				<input type="text" name="unit" lay-verify="required" placeholder="请输入单位" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">单价</label>
+			<div class="layui-input-block">
+				<input type="text" name="unitPrice" lay-verify="required" placeholder="请输入单价" class="layui-input">
+			</div>
+		</div>
+       <div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">药品类型</label>
+				<div class="layui-input-block">
+					<select name="drugLibraryType">
+						<option value=""></option>
+						<option value="中药">中药</option>
+						<option value="西药">西药</option>
+					</select>
+				</div>
+			</div>
+        </div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">操作人</label>
+			<div class="layui-input-block">
+				<input type="text" name="operator" lay-verify="required" placeholder="请输入操作人" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<!-- <button class="layui-btn layui-btn-primary" v-on:click="closeWin()">取消</button> -->
+				<button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+			</div>
+        </div>
+	</div>
+</div>
+<script type="text/javascript" src="../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+		entry:{},
+		drugEntryOrder:'',
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+	},
+	updated: function(){
+		layui.form.render();
+	},
+	
+});
+</script>
+<script>
+layui.config({
+	base: '../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+    app.entry = layui.data("temp").entry;
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        $(this).removeAttr("lay-key");
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#test1' //指定元素
+            ,trigger : 'click'
+        });
+    });
+
+	form.on("submit(submit)",function(data){
+		console.log(data.field);
+		$.ajax({
+			type: "POST",
+			url: "http://localhost:8080/ssm/library/add",
+			data: data.field,
+			dataType: "json",
+			success: function(res){
+				layer.msg("保存成功",{icon:1,time:1500},function(){
+					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		    		parent.layer.close(index);
+                });
+			},
+		}); 
+	});
+	
+
+});
+</script>
+</body>
+</html>

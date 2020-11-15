@@ -1,0 +1,14 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/java/com/dgut/controller/FlowSheetController.java=UTF-8
+encoding//src/main/java/com/dgut/dao/IDiagnosisInfoDao.java=UTF-8
+encoding//src/main/java/com/dgut/dao/IDrugInfoDao.java=UTF-8
+encoding//src/main/java/com/dgut/dao/IEntryLibraryDao.java=UTF-8
+encoding//src/main/java/com/dgut/dao/IRegisterInfoDao.java=UTF-8
+encoding//src/main/java/com/dgut/domain/DoctorInfo.java=UTF-8
+encoding//src/main/java/com/dgut/domain/PatientInfo.java=UTF-8
+encoding//src/main/java/com/dgut/domain/RegisterInfo.java=UTF-8
+encoding//src/main/java/com/dgut/service/impl/EntryLibraryServiceImpl.java=UTF-8
+encoding//src/main/java/com/dgut/service/impl/FlowSheetServiceImpl.java=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/test/java=UTF-8

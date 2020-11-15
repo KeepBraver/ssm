@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css">
+<link rel="stylesheet" href="../../css/admin.css">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+<div class="body" id="app">
+	<div class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">科室名称</label>
+			<div class="layui-inline">
+				<input type="text" name="deptName" v-model="deptInfo.deptName" lay-verify="required" placeholder="请输入科室名称" class="layui-input">
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label">科室介绍</label>
+			<textarea style="width: 300px;height: 100px;" rows="3" cols="3" name="deptIntroduct" placeholder="请输入科室介绍" v-model="deptInfo.deptIntroduct" lay-verify="required"  class="layui-input" ></textarea>
+        </div>
+        <div class="layui-form-item">
+			<label class="layui-form-label">就诊范围</label>
+			<textarea style="width: 300px;height: 100px;" rows="3" cols="3" name="diagnosticRange" placeholder="请输入就诊范围" v-model="deptInfo.diagnosticRange" lay-verify="required"  class="layui-input" ></textarea>
+        </div>
+        
+
+        <div class="layui-form-item">
+			<label class="layui-form-label">科室主任</label>
+			<div class="layui-inline">
+				<input type="text" v-model="deptInfo.deptLeader" name="deptLeader"  placeholder="请输入科室主任" lay-verify="required" class="layui-input">
+			</div>
+        </div>
+        <div class="layui-form-item">
+			<label class="layui-form-label">联系方式</label>
+			<div class="layui-input-block">
+				<input type="text" name="telephone" v-model="deptInfo.telephone" lay-verify="required" placeholder="请输入联系方式" class="layui-input">
+			</div>
+		</div>
+		
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<!-- <button class="layui-btn layui-btn-primary" v-on:click="closeWin()">取消</button> -->
+				<button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+			</div>
+        </div>
+	</div>
+</div>
+<script type="text/javascript" src="../../../js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript" src="../../../js/vue.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: {
+        deptInfo:{
+            deptName:'',
+            deptIntroduct:'',
+            diagnosticRange:'',
+            deptLeader:'',
+            telephone:'',
+		},
+	},
+	methods: {
+		closeWin: function() {
+    		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    		parent.layer.close(index);
+    	},
+	},
+	updated: function(){
+		layui.form.render();
+	},
+});
+</script>
+<script>
+layui.config({
+	base: '../../../layuiadmin/' //静态资源所在路径
+}).extend({
+    index: 'lib/index' //主入口模块
+}).use(['index','form'], function(){
+	let form = layui.form;
+	if(layui.data("temp").deptInfo==null){}
+    else {
+    	app.deptInfo = layui.data("temp").deptInfo;
+    	delete app.deptInfo.doctors;
+    }
+	layui.data("temp",null);
+    
+
+	form.on('submit(submit)', function(data){
+		
+		$.ajax({
+			type: "POST",
+			url: "http://localhost:8080/ssm/department/update",
+			data: app.deptInfo,
+			dataType: "json",
+			success: function(res){
+				layer.msg("保存成功",{icon:1,time:1500},function(){
+					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		    		parent.layer.close(index);
+                });
+			},
+			error:function(res){
+				layer.msg("保存失败",{icon:2,time:1500});
+			}
+		}); 
+			
+  	});
+});
+</script>
+</body>
+</html>
